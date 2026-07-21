@@ -1,0 +1,63 @@
+// Analytics próprio: registra acessos e progresso no funil na tabela
+// analytics_events do Supabase (mesma REST API "leve" usada em supabase.js).
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+const isConfigured =
+  !!SUPABASE_URL && !!SUPABASE_ANON_KEY && !SUPABASE_URL.includes("SEU-PROJETO");
+
+const SESSION_KEY = "infinyt_session_id";
+
+function getSessionId() {
+  let id = sessionStorage.getItem(SESSION_KEY);
+  if (!id) {
+    id = crypto.randomUUID();
+    sessionStorage.setItem(SESSION_KEY, id);
+  }
+  return id;
+}
+
+async function sendEvent(payload) {
+  if (!isConfigured) return;
+
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/analytics_events`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify(payload),
+    });
+  } catch (e) {
+    console.error("Analytics network error:", e);
+  }
+}
+
+export function trackPageView() {
+  sendEvent({ session_id: getSessionId(), event: "page_view" });
+}
+
+export function trackStepView(step, stepIndex) {
+  sendEvent({ session_id: getSessionId(), event: "step_view", step, step_index: stepIndex });
+}
+
+export async function fetchEvents() {
+  if (!isConfigured) return [];
+
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/analytics_events?select=session_id,event,step,step_index,created_at&order=created_at.asc`,
+    {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+    }
+  );
+
+  if (!res.ok) return [];
+  return res.json();
+}

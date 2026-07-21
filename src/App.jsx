@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { C, STEPS, WHATSAPP_NUMBER, REVENUE_RANGES } from "./constants.js";
 import { saveLead } from "./lib/supabase.js";
 import { initPixel, trackStep, trackLead } from "./lib/fbPixel.js";
+import { trackPageView, trackStepView } from "./lib/analytics.js";
 import {
   ProgressBar,
   Logo,
@@ -30,10 +31,12 @@ export default function InfinytFunnel() {
 
   useEffect(() => {
     initPixel();
+    trackPageView();
   }, []);
 
   useEffect(() => {
     trackStep(step, stepIndex);
+    trackStepView(step, stepIndex);
   }, [step, stepIndex]);
 
   const next = () => setStepIndex((i) => Math.min(i + 1, STEPS.length - 1));
