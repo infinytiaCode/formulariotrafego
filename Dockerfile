@@ -9,6 +9,8 @@ COPY . .
 
 # Essas variáveis precisam existir NO MOMENTO DO BUILD (Vite as "grava" no JS gerado).
 # No Easypanel, defina as mesmas chaves na aba "Environment" do serviço.
+# Sempre que só o valor de uma env var mudar (sem novo commit), force um novo push
+# para evitar que o Easypanel reaproveite a imagem já construída para esse commit.
 ARG VITE_SUPABASE_URL
 ARG VITE_SUPABASE_ANON_KEY
 ARG VITE_FB_PIXEL_ID
