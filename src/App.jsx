@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { C, STEPS, WHATSAPP_NUMBER, REVENUE_RANGES } from "./constants.js";
 import { saveLead } from "./lib/supabase.js";
+import { initPixel, trackStep, trackLead } from "./lib/fbPixel.js";
 import {
   ProgressBar,
   Logo,
@@ -8,7 +9,6 @@ import {
   OptionCard,
   Fade,
   WhatsAppMock,
-  VoiceNote,
   FeatureCard,
 } from "./components/UI.jsx";
 
@@ -27,6 +27,14 @@ export default function InfinytFunnel() {
 
   const step = STEPS[stepIndex];
   const total = STEPS.length;
+
+  useEffect(() => {
+    initPixel();
+  }, []);
+
+  useEffect(() => {
+    trackStep(step, stepIndex);
+  }, [step, stepIndex]);
 
   const next = () => setStepIndex((i) => Math.min(i + 1, STEPS.length - 1));
   const back = () => setStepIndex((i) => Math.max(i - 1, 0));
@@ -51,6 +59,7 @@ export default function InfinytFunnel() {
     });
 
     if (!ok) setSubmitError(true);
+    trackLead({ revenue_range: answers.revenue });
 
     const msg = "Olá quero agendar uma demonstração";
     const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
@@ -305,11 +314,6 @@ export default function InfinytFunnel() {
               <p style={{ color: C.muted, fontSize: 14.5, lineHeight: 1.5, margin: 0 }}>
                 Enquanto você avalia seus próximos passos, outras clínicas de estética já garantiram novos agendamentos sem depender da equipe, sem deixar pacientes no vácuo e sem perder oportunidades.
               </p>
-              <p style={{ color: C.text, fontSize: 15, fontWeight: 600, margin: 0 }}>Veja o que elas estão dizendo por aí:</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                <VoiceNote name="Dra. Mikaela" initials="M" duration="00:17" />
-                <VoiceNote name="Dra. Patrícia" initials="P" duration="00:16" />
-              </div>
               <PrimaryButton onClick={next} icon="🤩">
                 Sim, quero ver
               </PrimaryButton>
