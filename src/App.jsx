@@ -141,7 +141,7 @@ export default function InfinytFunnel() {
               </div>
 
               <h1 style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 700, fontSize: 27, lineHeight: 1.3, color: C.text, margin: 0 }}>
-                Descubra como clínicas de estética estão{" "}
+                Descubra como clínicas e consultórios estão{" "}
                 <span style={{ color: C.primaryLight }}>triplicando o faturamento</span>{" "}
                 com a IA que atende, convence e agenda pacientes no WhatsApp — 24 horas por dia
               </h1>
