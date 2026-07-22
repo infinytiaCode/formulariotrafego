@@ -19,7 +19,6 @@ import {
   Fade,
   WhatsAppMock,
   FeatureCard,
-  ComparisonRow,
 } from "./components/UI.jsx";
 
 const parseNumber = (str) => parseInt(String(str).replace(/\D/g, ""), 10) || 0;
@@ -249,23 +248,58 @@ export default function InfinytFunnel() {
 
                 <div
                   style={{
-                    background: C.panel,
                     border: `1px solid ${C.panelBorder}`,
                     borderRadius: 16,
-                    padding: "16px 18px",
+                    overflow: "hidden",
                   }}
                 >
-                  <ComparisonRow
-                    label="CUSTO POR CONTATO"
-                    oldValue="R$ 0,35 (outras empresas)"
-                    newValue="R$ 0,04 (com a Infinyt)"
-                  />
-                  <div style={{ height: 8 }} />
-                  <ComparisonRow
-                    label={`CUSTO TOTAL PARA FALAR COM ${contactsNum || 0} PESSOAS`}
-                    oldValue={formatBRL(costOthers)}
-                    newValue={formatBRL(costInfinyt)}
-                  />
+                  <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr 1fr" }}>
+                    <div style={{ padding: "12px 14px" }} />
+                    <div
+                      style={{
+                        padding: "12px 8px",
+                        textAlign: "center",
+                        color: C.danger,
+                        fontWeight: 700,
+                        fontSize: 13,
+                        background: "rgba(225,29,94,0.06)",
+                      }}
+                    >
+                      ✕ Outras empresas
+                    </div>
+                    <div
+                      style={{
+                        padding: "12px 8px",
+                        textAlign: "center",
+                        color: C.success,
+                        fontWeight: 700,
+                        fontSize: 13,
+                        background: "rgba(22,163,74,0.08)",
+                      }}
+                    >
+                      ✓ Com a Infinyt
+                    </div>
+                  </div>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr 1fr", borderTop: `1px solid ${C.panelBorder}` }}>
+                    <div style={{ padding: "14px", color: C.muted, fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center" }}>
+                      Custo por contato
+                    </div>
+                    <div style={{ padding: "14px 8px", textAlign: "center", color: C.text, fontSize: 15 }}>R$ 0,35</div>
+                    <div style={{ padding: "14px 8px", textAlign: "center", color: C.text, fontSize: 15, fontWeight: 700, background: "rgba(22,163,74,0.04)" }}>
+                      R$ 0,04
+                    </div>
+                  </div>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr 1fr", borderTop: `1px solid ${C.panelBorder}` }}>
+                    <div style={{ padding: "14px", color: C.muted, fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center" }}>
+                      Custo total p/ falar com {contactsNum || 0} pessoas
+                    </div>
+                    <div style={{ padding: "14px 8px", textAlign: "center", color: C.text, fontSize: 15 }}>{formatBRL(costOthers)}</div>
+                    <div style={{ padding: "14px 8px", textAlign: "center", color: C.text, fontSize: 15, fontWeight: 700, background: "rgba(22,163,74,0.04)" }}>
+                      {formatBRL(costInfinyt)}
+                    </div>
+                  </div>
                 </div>
 
                 <p style={{ color: C.text, fontSize: 15, lineHeight: 1.5, textAlign: "center", margin: 0 }}>
@@ -320,6 +354,14 @@ export default function InfinytFunnel() {
                     </span>
                     <span style={{ fontSize: 13, opacity: 0.85 }}>
                       de faturamento extra por mês só reativando quem já falou com você
+                    </span>
+
+                    <div style={{ height: 1, background: "rgba(255,255,255,0.25)", margin: "6px 0" }} />
+
+                    <span style={{ fontSize: 14 }}>
+                      Pagando somente{" "}
+                      <b style={{ fontSize: 17 }}>{formatBRL(costInfinyt)}</b> com a Infinyt
+                      para falar com esses {contactsNum || 0} contatos
                     </span>
                   </div>
                 )}
