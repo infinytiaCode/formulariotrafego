@@ -130,7 +130,7 @@ export default function InfinytFunnel() {
         input::placeholder { color: ${C.mutedDark}; }
       `}</style>
 
-      <div style={{ width: "100%", maxWidth: 460, display: "flex", flexDirection: "column", gap: 22 }}>
+      <div style={{ width: "100%", maxWidth: 460, minWidth: 0, display: "flex", flexDirection: "column", gap: 22 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 14, alignItems: "center" }}>
           <Logo />
           {step !== "welcome" && <ProgressBar index={stepIndex} total={total} />}
@@ -263,9 +263,10 @@ export default function InfinytFunnel() {
                     border: `1px solid ${C.panelBorder}`,
                     borderRadius: 16,
                     overflow: "hidden",
+                    minWidth: 0,
                   }}
                 >
-                  <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr 1fr" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr)" }}>
                     <div style={{ padding: "12px 14px" }} />
                     <div
                       style={{
@@ -293,7 +294,7 @@ export default function InfinytFunnel() {
                     </div>
                   </div>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr 1fr", borderTop: `1px solid ${C.panelBorder}` }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr)", borderTop: `1px solid ${C.panelBorder}` }}>
                     <div style={{ padding: "14px", color: C.muted, fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center" }}>
                       Custo por contato
                     </div>
@@ -303,7 +304,7 @@ export default function InfinytFunnel() {
                     </div>
                   </div>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr 1fr", borderTop: `1px solid ${C.panelBorder}` }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr)", borderTop: `1px solid ${C.panelBorder}` }}>
                     <div style={{ padding: "14px", color: C.muted, fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center" }}>
                       Custo total p/ falar com {contactsNum || 0} pessoas
                     </div>
