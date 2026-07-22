@@ -18,7 +18,6 @@ import {
   OptionCard,
   Fade,
   WhatsAppMock,
-  FeatureCard,
 } from "./components/UI.jsx";
 
 const parseNumber = (str) => parseInt(String(str).replace(/\D/g, ""), 10) || 0;
@@ -507,43 +506,6 @@ export default function InfinytFunnel() {
             </div>
           )}
 
-          {step === "social-proof" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 18, textAlign: "center" }}>
-              <h2 style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 700, fontSize: 20, color: C.text, margin: 0 }}>
-                Enquanto você respondia este quiz, <span style={{ color: C.primaryLight }}>7 procedimentos</span> foram agendados automaticamente por quem já usa a Infinyt!
-              </h2>
-              <p style={{ color: C.muted, fontSize: 14.5, lineHeight: 1.5, margin: 0 }}>
-                Enquanto você avalia seus próximos passos, outras clínicas de estética já garantiram novos agendamentos sem depender da equipe, sem deixar pacientes no vácuo e sem perder oportunidades.
-              </p>
-              <PrimaryButton onClick={next} icon="🤩">
-                Sim, quero ver
-              </PrimaryButton>
-            </div>
-          )}
-
-          {step === "features" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-              <h2 style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 700, fontSize: 20, color: C.text, textAlign: "center", margin: 0 }}>
-                A <span style={{ color: C.primaryLight }}>Infinyt</span> é sua nova secretária: treinada em vendas, especialista em estética e disponível 24 horas por dia!
-              </h2>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                <FeatureCard>Responde todos os seus leads no WhatsApp em segundos</FeatureCard>
-                <FeatureCard>Encanta cada paciente com mensagens humanizadas</FeatureCard>
-                <FeatureCard>Apresenta os procedimentos da sua clínica com técnica de venda validada</FeatureCard>
-                <FeatureCard>Faz agendamentos automaticamente direto na sua agenda</FeatureCard>
-                <FeatureCard>Trabalha 24h todos os dias, inclusive fora do horário comercial e feriados</FeatureCard>
-                <FeatureCard>Faz follow-up automático com quem parou de responder</FeatureCard>
-              </div>
-              <p style={{ color: C.text, fontSize: 14.5, lineHeight: 1.5, textAlign: "center", margin: 0 }}>
-                💡 Ela não "dispara" mensagens. Ela <b style={{ color: C.primaryLight }}>ENCANTA</b> com intencionalidade.
-              </p>
-              <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.5, textAlign: "center", margin: 0 }}>
-                É como ter a melhor secretária do mundo atendendo 24/7 e transformando contatos em procedimentos!
-              </p>
-              <PrimaryButton onClick={next}>Gostei, é isso que preciso!</PrimaryButton>
-            </div>
-          )}
-
           {step === "revenue" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               <h2 style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 700, fontSize: 21, color: C.text, textAlign: "center", margin: 0 }}>
@@ -570,8 +532,6 @@ export default function InfinytFunnel() {
                   A <span style={{ color: C.primaryLight, fontWeight: 600 }}>Infinyt</span> responde em segundos, vende e agenda por você!
                 </p>
               </div>
-
-              <WhatsAppMock variant="demo" />
 
               <div style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: 6 }}>
                 <h3 style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 700, fontSize: 18, color: C.text, margin: 0 }}>
@@ -637,6 +597,8 @@ export default function InfinytFunnel() {
                   </p>
                 )}
               </div>
+
+              <WhatsAppMock variant="demo" />
             </div>
           )}
         </Fade>

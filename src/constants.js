@@ -22,8 +22,6 @@ export const STEPS = [
   "after-hours",
   "stat",
   "would-help",
-  "social-proof",
-  "features",
   "revenue",
   "final",
 ];
