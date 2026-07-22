@@ -10,7 +10,7 @@ import {
 } from "./constants.js";
 import { saveLead } from "./lib/supabase.js";
 import { initPixel, trackStep, trackLead } from "./lib/fbPixel.js";
-import { trackPageView, trackStepView } from "./lib/analytics.js";
+import { trackPageView, trackStepView, trackStepAnswer } from "./lib/analytics.js";
 import {
   ProgressBar,
   Logo,
@@ -23,6 +23,16 @@ import {
 const parseNumber = (str) => parseInt(String(str).replace(/\D/g, ""), 10) || 0;
 const formatBRL = (n) =>
   n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+const STEP_ANSWER_KEYS = {
+  contacts: "contacts",
+  "who-answers": "whoAnswers",
+  calculator: "ticketMedio",
+  "lost-client": "lostClient",
+  "after-hours": "afterHours",
+  "would-help": "wouldHelp",
+  revenue: "revenue",
+};
 
 export default function InfinytFunnel() {
   const [stepIndex, setStepIndex] = useState(0);
@@ -51,7 +61,11 @@ export default function InfinytFunnel() {
     trackStepView(step, stepIndex);
   }, [step, stepIndex]);
 
-  const next = () => setStepIndex((i) => Math.min(i + 1, STEPS.length - 1));
+  const next = () => {
+    const answerKey = STEP_ANSWER_KEYS[step];
+    if (answerKey) trackStepAnswer(step, stepIndex, answers[answerKey]);
+    setStepIndex((i) => Math.min(i + 1, STEPS.length - 1));
+  };
   const back = () => setStepIndex((i) => Math.max(i - 1, 0));
   const setAnswer = (key, val) => setAnswers((a) => ({ ...a, [key]: val }));
 

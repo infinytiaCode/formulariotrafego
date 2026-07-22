@@ -63,11 +63,26 @@ export function trackStepView(step, stepIndex) {
   });
 }
 
+// Registrado quando a pessoa clica em "Continuar", com o que ela
+// respondeu/digitou naquela etapa (não captura texto digitado e depois
+// abandonado sem confirmar, pra não disparar um evento a cada tecla).
+export function trackStepAnswer(step, stepIndex, answer) {
+  if (answer === undefined || answer === null || String(answer).trim() === "") return;
+  sendEvent({
+    session_id: getSessionId(),
+    visitor_id: getVisitorId(),
+    event: "step_answer",
+    step,
+    step_index: stepIndex,
+    answer: String(answer).trim(),
+  });
+}
+
 export async function fetchEvents() {
   if (!isConfigured) return [];
 
   const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/analytics_events?select=session_id,visitor_id,event,step,step_index,created_at&order=created_at.asc`,
+    `${SUPABASE_URL}/rest/v1/analytics_events?select=session_id,visitor_id,event,step,step_index,answer,created_at&order=created_at.asc`,
     {
       headers: {
         apikey: SUPABASE_ANON_KEY,

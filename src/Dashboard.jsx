@@ -6,15 +6,24 @@ const STEP_LABELS = {
   welcome: "Boas-vindas",
   contacts: "Quantidade de contatos",
   "who-answers": "Quem responde",
+  calculator: "Calculadora de reativação",
   "lost-client": "Já perdeu cliente",
   "after-hours": "Fora do horário",
   stat: "Estatística",
   "would-help": "Ajudaria?",
-  "social-proof": "Prova social",
-  features: "Funcionalidades",
   revenue: "Faturamento",
   final: "Formulário final",
 };
+
+// Passos de texto livre: mostramos média/min/máx e os últimos valores digitados.
+// Os demais passos com resposta têm opções fixas, então mostramos a distribuição.
+const FREE_TEXT_STEPS = new Set(["contacts", "calculator"]);
+
+function formatDuration(ms) {
+  const s = Math.round(ms / 1000);
+  if (s < 60) return `${s}s`;
+  return `${Math.floor(s / 60)}min ${s % 60}s`;
+}
 
 const AUTH_KEY = "infinyt_dashboard_auth";
 const PASSWORD = import.meta.env.VITE_DASHBOARD_PASSWORD;
@@ -101,6 +110,95 @@ function Funnel({ counts }) {
   );
 }
 
+function ExitPoints({ counts, total }) {
+  const max = Math.max(...counts.map((c) => c.count), 1);
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      {counts.map((c) => {
+        const pct = max ? (c.count / max) * 100 : 0;
+        const shareOfTotal = total > 0 ? Math.round((c.count / total) * 100) : 0;
+        return (
+          <div key={c.step}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: C.text, marginBottom: 4 }}>
+              <span>{STEP_LABELS[c.step] || c.step}</span>
+              <span style={{ color: C.muted }}>
+                {c.count} {c.count > 0 && <span>({shareOfTotal}%)</span>}
+              </span>
+            </div>
+            <div style={{ background: C.panel, borderRadius: 8, height: 18 }}>
+              <div
+                style={{
+                  width: `${pct}%`,
+                  minWidth: pct > 0 ? 8 : 0,
+                  height: "100%",
+                  background: c.step === "final" ? C.success : C.danger,
+                  opacity: 0.75,
+                  borderRadius: 8,
+                  transition: "width 0.3s",
+                }}
+              />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function AnswerBreakdown({ step, answers }) {
+  if (FREE_TEXT_STEPS.has(step)) {
+    const numbers = answers.map((a) => parseFloat(String(a).replace(/[^\d.,]/g, "").replace(",", "."))).filter((n) => !isNaN(n));
+    const avg = numbers.length ? numbers.reduce((s, n) => s + n, 0) / numbers.length : null;
+    const recent = answers.slice(-8).reverse();
+    return (
+      <div>
+        <div style={{ fontSize: 13, fontWeight: 600, color: C.text, marginBottom: 8 }}>
+          {STEP_LABELS[step] || step} <span style={{ color: C.muted, fontWeight: 400 }}>({answers.length} respostas)</span>
+        </div>
+        {avg !== null && (
+          <div style={{ fontSize: 13, color: C.muted, marginBottom: 8 }}>
+            Média: <b style={{ color: C.text }}>{avg.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}</b>
+            {" · "}Min: {Math.min(...numbers)} · Máx: {Math.max(...numbers)}
+          </div>
+        )}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          {recent.map((v, i) => (
+            <span key={i} style={{ background: C.panel, borderRadius: 8, padding: "4px 10px", fontSize: 12.5, color: C.text }}>
+              {v}
+            </span>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  const counts = {};
+  answers.forEach((a) => { counts[a] = (counts[a] || 0) + 1; });
+  const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  const max = entries[0]?.[1] || 1;
+
+  return (
+    <div>
+      <div style={{ fontSize: 13, fontWeight: 600, color: C.text, marginBottom: 8 }}>
+        {STEP_LABELS[step] || step} <span style={{ color: C.muted, fontWeight: 400 }}>({answers.length} respostas)</span>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {entries.map(([label, count]) => (
+          <div key={label}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, color: C.text, marginBottom: 3 }}>
+              <span>{label}</span>
+              <span style={{ color: C.muted }}>{count}</span>
+            </div>
+            <div style={{ background: C.panel, borderRadius: 6, height: 12 }}>
+              <div style={{ width: `${(count / max) * 100}%`, minWidth: 6, height: "100%", background: C.primaryLight, borderRadius: 6 }} />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const [authed, setAuthed] = useState(() => sessionStorage.getItem(AUTH_KEY) === "1");
   const [loading, setLoading] = useState(true);
@@ -149,6 +247,52 @@ export default function Dashboard() {
     }
   }
 
+  // Onde cada sessão parou de fato: o último passo visto por ela.
+  const lastStepBySession = new Map();
+  events
+    .filter((e) => e.event === "step_view")
+    .forEach((e) => {
+      const cur = lastStepBySession.get(e.session_id);
+      if (cur === undefined || e.step_index > cur) lastStepBySession.set(e.session_id, e.step_index);
+    });
+  const exitCounts = STEPS.map((step, index) => ({
+    step,
+    index,
+    count: [...lastStepBySession.values()].filter((i) => i === index).length,
+  }));
+
+  // Tempo gasto em cada etapa: diferença de tempo entre visitas consecutivas
+  // da mesma sessão (descarta gaps > 10min, provavelmente aba esquecida aberta).
+  const durationsByStep = STEPS.map(() => []);
+  const sessionsMap = new Map();
+  events
+    .filter((e) => e.event === "step_view")
+    .forEach((e) => {
+      if (!sessionsMap.has(e.session_id)) sessionsMap.set(e.session_id, []);
+      sessionsMap.get(e.session_id).push(e);
+    });
+  sessionsMap.forEach((sessionEvents) => {
+    const sorted = [...sessionEvents].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    for (let i = 1; i < sorted.length; i++) {
+      const delta = new Date(sorted[i].created_at) - new Date(sorted[i - 1].created_at);
+      if (delta > 0 && delta < 10 * 60 * 1000) durationsByStep[sorted[i - 1].step_index].push(delta);
+    }
+  });
+  const avgTimeByStep = STEPS.map((step, index) => {
+    const durations = durationsByStep[index];
+    if (!durations.length) return null;
+    return { step, index, avgMs: durations.reduce((s, d) => s + d, 0) / durations.length };
+  }).filter(Boolean);
+
+  // Respostas dadas em cada etapa (o que a pessoa digitou/escolheu).
+  const answersByStep = {};
+  events
+    .filter((e) => e.event === "step_answer" && e.answer)
+    .forEach((e) => {
+      if (!answersByStep[e.step]) answersByStep[e.step] = [];
+      answersByStep[e.step].push(e.answer);
+    });
+
   return (
     <div style={{ minHeight: "100vh", background: C.panel, padding: "32px 20px" }}>
       <div style={{ maxWidth: 640, margin: "0 auto", display: "flex", flexDirection: "column", gap: 24 }}>
@@ -166,8 +310,56 @@ export default function Dashboard() {
           <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: 16, color: C.text, margin: "0 0 16px" }}>
             Sessões por etapa
           </h2>
+          <p style={{ color: C.muted, fontSize: 12.5, margin: "-10px 0 16px" }}>
+            Quantas sessões chegaram a ver cada etapa (acumulado).
+          </p>
           <Funnel counts={stepCounts} />
         </div>
+
+        <div style={{ background: "#fff", border: `1px solid ${C.panelBorder}`, borderRadius: 16, padding: 20 }}>
+          <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: 16, color: C.text, margin: "0 0 16px" }}>
+            Onde as pessoas pararam
+          </h2>
+          <p style={{ color: C.muted, fontSize: 12.5, margin: "-10px 0 16px" }}>
+            Última etapa vista por cada sessão — se parou em "Formulário final", provavelmente converteu.
+          </p>
+          <ExitPoints counts={exitCounts} total={totalSessions} />
+        </div>
+
+        {avgTimeByStep.length > 0 && (
+          <div style={{ background: "#fff", border: `1px solid ${C.panelBorder}`, borderRadius: 16, padding: 20 }}>
+            <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: 16, color: C.text, margin: "0 0 16px" }}>
+              Tempo médio por etapa
+            </h2>
+            <p style={{ color: C.muted, fontSize: 12.5, margin: "-10px 0 16px" }}>
+              Quanto tempo em média a pessoa fica em cada etapa antes de avançar. Etapas com tempo alto podem indicar dúvida ou dificuldade.
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {avgTimeByStep.map(({ step, avgMs }) => (
+                <div key={step} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: C.text }}>
+                  <span>{STEP_LABELS[step] || step}</span>
+                  <span style={{ color: C.muted }}>{formatDuration(avgMs)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {Object.keys(answersByStep).length > 0 && (
+          <div style={{ background: "#fff", border: `1px solid ${C.panelBorder}`, borderRadius: 16, padding: 20 }}>
+            <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: 16, color: C.text, margin: "0 0 16px" }}>
+              Respostas por etapa
+            </h2>
+            <p style={{ color: C.muted, fontSize: 12.5, margin: "-10px 0 16px" }}>
+              O que as pessoas digitaram ou escolheram em cada pergunta.
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              {STEPS.filter((step) => answersByStep[step]).map((step) => (
+                <AnswerBreakdown key={step} step={step} answers={answersByStep[step]} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
