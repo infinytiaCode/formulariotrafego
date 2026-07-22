@@ -480,7 +480,7 @@ export default function InfinytFunnel() {
                 Você sabia disso? 🚨
               </h2>
               <p style={{ color: C.muted, fontSize: 15.5, lineHeight: 1.5, margin: 0 }}>
-                67% dos leads que entram em contato com uma estética desistem se ninguém responde em 2 minutos.
+                67% dos leads que entram em contato com uma clínica desistem se ninguém responde em 2 minutos.
               </p>
               <div
                 style={{
