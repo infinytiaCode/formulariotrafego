@@ -366,6 +366,45 @@ export default function InfinytFunnel() {
                   </div>
                 )}
 
+                {ticketNum > 0 && (
+                  <div
+                    style={{
+                      background: C.panel,
+                      border: `1px solid ${C.panelBorder}`,
+                      borderRadius: 16,
+                      padding: "16px 18px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 12,
+                    }}
+                  >
+                    <p style={{ color: C.text, fontSize: 14, fontWeight: 600, textAlign: "center", margin: 0 }}>
+                      E 1% é só o começo. Se a conversão for maior:
+                    </p>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+                      {[2, 3, 5, 10].map((multiplier) => (
+                        <div
+                          key={multiplier}
+                          style={{
+                            background: "#FFFFFF",
+                            border: `1px solid ${C.panelBorder}`,
+                            borderRadius: 12,
+                            padding: "10px 6px",
+                            textAlign: "center",
+                          }}
+                        >
+                          <div style={{ color: C.primaryLight, fontWeight: 700, fontSize: 13 }}>
+                            {multiplier}%
+                          </div>
+                          <div style={{ color: C.text, fontWeight: 700, fontSize: 13.5, marginTop: 2 }}>
+                            {formatBRL(potentialRevenue * multiplier)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <PrimaryButton onClick={next} disabled={!canContinue()}>
                   Continuar
                 </PrimaryButton>
