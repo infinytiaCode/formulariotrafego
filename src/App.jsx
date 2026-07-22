@@ -71,7 +71,6 @@ export default function InfinytFunnel() {
       after_hours: answers.afterHours,
       would_help: answers.wouldHelp,
       revenue_range: answers.revenue,
-      ticket_medio: answers.ticketMedio,
     });
 
     if (!ok) setSubmitError(true);
