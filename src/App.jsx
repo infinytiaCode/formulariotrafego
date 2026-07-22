@@ -118,7 +118,7 @@ export default function InfinytFunnel() {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        padding: "28px 16px 80px",
+        padding: "28px 16px",
         boxSizing: "border-box",
         fontFamily: "'Inter', sans-serif",
         position: "relative",
@@ -393,7 +393,7 @@ export default function InfinytFunnel() {
                     <p style={{ color: C.text, fontSize: 14, fontWeight: 600, textAlign: "center", margin: 0 }}>
                       E 1% é só o começo. Se a conversão for maior:
                     </p>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(72px, 1fr))", gap: 8 }}>
                       {[2, 3, 5, 10].map((multiplier) => (
                         <div
                           key={multiplier}
@@ -619,15 +619,12 @@ export default function InfinytFunnel() {
 
       <div
         style={{
-          position: "fixed",
-          bottom: 0,
-          left: 0,
           width: "100%",
+          maxWidth: 460,
           textAlign: "center",
           color: C.mutedDark,
           fontSize: 12,
-          padding: "12px 0",
-          background: C.bg,
+          padding: "20px 0 4px",
         }}
       >
         © 2026 Infinyt.IA
