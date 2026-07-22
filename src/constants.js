@@ -17,6 +17,7 @@ export const STEPS = [
   "welcome",
   "contacts",
   "who-answers",
+  "calculator",
   "lost-client",
   "after-hours",
   "stat",
@@ -26,6 +27,11 @@ export const STEPS = [
   "revenue",
   "final",
 ];
+
+// Custo por contato para calcular a calculadora de reativação de base
+export const COST_PER_CONTACT_INFINYT = 0.04;
+export const COST_PER_CONTACT_OTHERS = 0.35;
+export const REACTIVATION_CONVERSION_RATE = 0.01;
 
 export const REVENUE_RANGES = [
   "Até R$ 10.000",

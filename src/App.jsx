@@ -1,5 +1,13 @@
 import { useState, useEffect } from "react";
-import { C, STEPS, WHATSAPP_NUMBER, REVENUE_RANGES } from "./constants.js";
+import {
+  C,
+  STEPS,
+  WHATSAPP_NUMBER,
+  REVENUE_RANGES,
+  COST_PER_CONTACT_INFINYT,
+  COST_PER_CONTACT_OTHERS,
+  REACTIVATION_CONVERSION_RATE,
+} from "./constants.js";
 import { saveLead } from "./lib/supabase.js";
 import { initPixel, trackStep, trackLead } from "./lib/fbPixel.js";
 import { trackPageView, trackStepView } from "./lib/analytics.js";
@@ -11,7 +19,12 @@ import {
   Fade,
   WhatsAppMock,
   FeatureCard,
+  ComparisonRow,
 } from "./components/UI.jsx";
+
+const parseNumber = (str) => parseInt(String(str).replace(/\D/g, ""), 10) || 0;
+const formatBRL = (n) =>
+  n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 export default function InfinytFunnel() {
   const [stepIndex, setStepIndex] = useState(0);
@@ -22,6 +35,7 @@ export default function InfinytFunnel() {
     afterHours: "",
     wouldHelp: "",
     revenue: "",
+    ticketMedio: "",
   });
   const [leadName, setLeadName] = useState("");
   const [leadPhone, setLeadPhone] = useState("");
@@ -59,6 +73,7 @@ export default function InfinytFunnel() {
       after_hours: answers.afterHours,
       would_help: answers.wouldHelp,
       revenue_range: answers.revenue,
+      ticket_medio: answers.ticketMedio,
     });
 
     if (!ok) setSubmitError(true);
@@ -74,6 +89,7 @@ export default function InfinytFunnel() {
   const canContinue = () => {
     if (step === "contacts") return answers.contacts.trim().length > 0;
     if (step === "who-answers") return !!answers.whoAnswers;
+    if (step === "calculator") return parseNumber(answers.ticketMedio) > 0;
     if (step === "lost-client") return !!answers.lostClient;
     if (step === "after-hours") return !!answers.afterHours;
     if (step === "would-help") return !!answers.wouldHelp;
@@ -213,6 +229,107 @@ export default function InfinytFunnel() {
               </PrimaryButton>
             </div>
           )}
+
+          {step === "calculator" && (() => {
+            const contactsNum = parseNumber(answers.contacts);
+            const costInfinyt = contactsNum * COST_PER_CONTACT_INFINYT;
+            const costOthers = contactsNum * COST_PER_CONTACT_OTHERS;
+            const economy = costOthers - costInfinyt;
+            const ticketNum = parseNumber(answers.ticketMedio);
+            const potentialClients = Math.round(contactsNum * REACTIVATION_CONVERSION_RATE);
+            const potentialRevenue = potentialClients * ticketNum;
+
+            return (
+              <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                <h2 style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 700, fontSize: 21, color: C.text, textAlign: "center", margin: 0 }}>
+                  Vamos calcular o quanto você está{" "}
+                  <span style={{ color: C.danger }}>deixando na mesa</span> com esses{" "}
+                  <span style={{ color: C.primaryLight }}>{contactsNum || "0"} contatos</span>?
+                </h2>
+
+                <div
+                  style={{
+                    background: C.panel,
+                    border: `1px solid ${C.panelBorder}`,
+                    borderRadius: 16,
+                    padding: "16px 18px",
+                  }}
+                >
+                  <ComparisonRow
+                    label="CUSTO POR CONTATO"
+                    oldValue="R$ 0,35 (outras empresas)"
+                    newValue="R$ 0,04 (com a Infinyt)"
+                  />
+                  <div style={{ height: 8 }} />
+                  <ComparisonRow
+                    label={`CUSTO TOTAL PARA FALAR COM ${contactsNum || 0} PESSOAS`}
+                    oldValue={formatBRL(costOthers)}
+                    newValue={formatBRL(costInfinyt)}
+                  />
+                </div>
+
+                <p style={{ color: C.text, fontSize: 15, lineHeight: 1.5, textAlign: "center", margin: 0 }}>
+                  Com a Infinyt você economiza{" "}
+                  <b style={{ color: C.success }}>{formatBRL(economy)}</b> só para reativar essa base
+                  que já te procurou.
+                </p>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <label style={{ color: C.text, fontSize: 13.5, fontWeight: 600 }}>
+                    Qual o ticket médio dos seus procedimentos?
+                  </label>
+                  <input
+                    value={answers.ticketMedio}
+                    onChange={(e) => setAnswer("ticketMedio", e.target.value)}
+                    placeholder="Ex: 350"
+                    inputMode="numeric"
+                    style={{
+                      width: "100%",
+                      padding: "16px 18px",
+                      borderRadius: 14,
+                      border: `1.5px solid ${C.panelBorder}`,
+                      background: "#FFFFFF",
+                      color: C.text,
+                      fontSize: 15,
+                      outline: "none",
+                      boxShadow: "0 1px 3px rgba(23,18,51,0.05)",
+                    }}
+                  />
+                </div>
+
+                {ticketNum > 0 && (
+                  <div
+                    style={{
+                      background: `linear-gradient(135deg, ${C.primary}, ${C.primaryDark})`,
+                      borderRadius: 16,
+                      padding: 18,
+                      color: "#FFFFFF",
+                      textAlign: "center",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 6,
+                      boxShadow: `0 8px 24px ${C.primary}45`,
+                    }}
+                  >
+                    <span style={{ fontSize: 13, opacity: 0.85 }}>
+                      Se apenas 1% desses contatos vira paciente ({potentialClients}{" "}
+                      {potentialClients === 1 ? "pessoa" : "pessoas"})
+                    </span>
+                    <span style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 700, fontSize: 26 }}>
+                      +{formatBRL(potentialRevenue)}
+                    </span>
+                    <span style={{ fontSize: 13, opacity: 0.85 }}>
+                      de faturamento extra por mês só reativando quem já falou com você
+                    </span>
+                  </div>
+                )}
+
+                <PrimaryButton onClick={next} disabled={!canContinue()}>
+                  Continuar
+                </PrimaryButton>
+              </div>
+            );
+          })()}
 
           {step === "lost-client" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
