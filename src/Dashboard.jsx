@@ -126,6 +126,7 @@ export default function Dashboard() {
   if (loading) return <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>Carregando…</div>;
 
   const totalSessions = new Set(events.map((e) => e.session_id)).size;
+  const totalVisitors = new Set(events.map((e) => e.visitor_id).filter(Boolean)).size;
 
   const stepCounts = STEPS.map((step, index) => ({
     step,
@@ -154,6 +155,7 @@ export default function Dashboard() {
         <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: 22, color: C.text, margin: 0 }}>Acessos do funil</h1>
 
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+          <StatTile label="Pessoas únicas" value={totalVisitors} />
           <StatTile label="Sessões totais" value={totalSessions} />
           <StatTile label="Chegaram ao final" value={finalCount} />
           <StatTile label="Taxa de conclusão" value={`${conversionRate}%`} />

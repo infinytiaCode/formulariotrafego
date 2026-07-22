@@ -8,12 +8,24 @@ const isConfigured =
   !!SUPABASE_URL && !!SUPABASE_ANON_KEY && !SUPABASE_URL.includes("SEU-PROJETO");
 
 const SESSION_KEY = "infinyt_session_id";
+const VISITOR_KEY = "infinyt_visitor_id";
 
 function getSessionId() {
   let id = sessionStorage.getItem(SESSION_KEY);
   if (!id) {
     id = crypto.randomUUID();
     sessionStorage.setItem(SESSION_KEY, id);
+  }
+  return id;
+}
+
+// Persiste no localStorage (sobrevive entre abas/sessões) para identificar
+// a mesma pessoa mesmo que ela entre no site várias vezes.
+function getVisitorId() {
+  let id = localStorage.getItem(VISITOR_KEY);
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem(VISITOR_KEY, id);
   }
   return id;
 }
@@ -38,18 +50,24 @@ async function sendEvent(payload) {
 }
 
 export function trackPageView() {
-  sendEvent({ session_id: getSessionId(), event: "page_view" });
+  sendEvent({ session_id: getSessionId(), visitor_id: getVisitorId(), event: "page_view" });
 }
 
 export function trackStepView(step, stepIndex) {
-  sendEvent({ session_id: getSessionId(), event: "step_view", step, step_index: stepIndex });
+  sendEvent({
+    session_id: getSessionId(),
+    visitor_id: getVisitorId(),
+    event: "step_view",
+    step,
+    step_index: stepIndex,
+  });
 }
 
 export async function fetchEvents() {
   if (!isConfigured) return [];
 
   const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/analytics_events?select=session_id,event,step,step_index,created_at&order=created_at.asc`,
+    `${SUPABASE_URL}/rest/v1/analytics_events?select=session_id,visitor_id,event,step,step_index,created_at&order=created_at.asc`,
     {
       headers: {
         apikey: SUPABASE_ANON_KEY,
