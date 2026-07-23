@@ -207,6 +207,7 @@ export default function InfinytFunnel() {
                 value={answers.contacts}
                 onChange={(e) => setAnswer("contacts", e.target.value)}
                 placeholder="digite quantos contatos você recebe..."
+                inputMode="numeric"
                 style={{
                   width: "100%",
                   padding: "16px 18px",
@@ -219,6 +220,24 @@ export default function InfinytFunnel() {
                   boxShadow: "0 1px 3px rgba(23,18,51,0.05)",
                 }}
               />
+              {parseNumber(answers.contacts) > 0 && parseNumber(answers.contacts) < 100 && (
+                <p
+                  style={{
+                    color: C.danger,
+                    background: "rgba(225,29,94,0.06)",
+                    border: `1px solid ${C.danger}`,
+                    borderRadius: 12,
+                    padding: "12px 14px",
+                    fontSize: 13.5,
+                    lineHeight: 1.5,
+                    margin: 0,
+                  }}
+                >
+                  ⚠️ Confirme: esse número ({parseNumber(answers.contacts)}) é a quantidade de
+                  contatos que você recebe durante <b>todo o mês</b>, e não por dia. Muita gente
+                  preenche sem reparar e coloca a quantidade do dia por engano.
+                </p>
+              )}
               <PrimaryButton onClick={next} disabled={!canContinue()}>
                 Continuar
               </PrimaryButton>
