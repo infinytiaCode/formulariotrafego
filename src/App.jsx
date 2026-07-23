@@ -9,7 +9,7 @@ import {
   REACTIVATION_CONVERSION_RATE,
 } from "./constants.js";
 import { saveLead } from "./lib/supabase.js";
-import { initPixel, trackStep, trackLead } from "./lib/fbPixel.js";
+import { initPixel, trackStep, trackLead, generateEventId, getFbclid, getFbc, getFbp } from "./lib/fbPixel.js";
 import { trackPageView, trackStepView, trackStepAnswer } from "./lib/analytics.js";
 import {
   ProgressBar,
@@ -76,6 +76,13 @@ export default function InfinytFunnel() {
     setIsSubmitting(true);
     setSubmitError(false);
 
+    // Dispara o Lead o quanto antes, antes de qualquer outra chamada de rede,
+    // para dar ao pixel o máximo de tempo possível para enviar o beacon antes
+    // do redirecionamento (browsers in-app do Instagram/Facebook podem matar
+    // a página assim que o WhatsApp abre).
+    const eventId = generateEventId();
+    trackLead({ revenue_range: answers.revenue }, eventId);
+
     const { ok } = await saveLead({
       name: leadName.trim(),
       phone: leadPhone.trim(),
@@ -85,16 +92,23 @@ export default function InfinytFunnel() {
       after_hours: answers.afterHours,
       would_help: answers.wouldHelp,
       revenue_range: answers.revenue,
+      fbclid: getFbclid(),
+      fbc: getFbc(),
+      fbp: getFbp(),
+      event_id: eventId,
     });
 
     if (!ok) setSubmitError(true);
-    trackLead({ revenue_range: answers.revenue });
 
     const msg = "Olá quero agendar uma demonstração";
     const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
-    window.open(url, "_blank");
 
-    setIsSubmitting(false);
+    // Pequeno atraso para garantir que o beacon do Lead já tenha saído do
+    // navegador antes da troca de contexto (nova aba / deep link do app).
+    setTimeout(() => {
+      window.open(url, "_blank");
+      setIsSubmitting(false);
+    }, 250);
   };
 
   const canContinue = () => {
