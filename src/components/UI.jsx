@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { C } from "../constants.js";
+import { C, INSTAGRAM_URL, INSTAGRAM_HANDLE } from "../constants.js";
 import logo from "../assets/logo.png";
 
 export function ProgressBar({ index, total }) {
@@ -236,6 +236,91 @@ export function WhatsAppMock({ variant }) {
             </div>
           </>
         )}
+      </div>
+    </div>
+  );
+}
+
+
+export function DisqualifyModal({ onClose }) {
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(23,18,51,0.55)",
+        backdropFilter: "blur(2px)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 20,
+        zIndex: 1000,
+      }}
+    >
+      <div
+        style={{
+          position: "relative",
+          width: "100%",
+          maxWidth: 380,
+          background: "#F3F1FA",
+          borderRadius: 24,
+          padding: "36px 28px 28px",
+          textAlign: "center",
+          boxShadow: "0 20px 60px rgba(23,18,51,0.35)",
+        }}
+      >
+        <button
+          onClick={onClose}
+          aria-label="Fechar"
+          style={{
+            position: "absolute",
+            top: 16,
+            right: 16,
+            width: 32,
+            height: 32,
+            borderRadius: "50%",
+            border: `1px solid ${C.panelBorder}`,
+            background: "#FFFFFF",
+            color: C.muted,
+            fontSize: 16,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+          }}
+        >
+          ✕
+        </button>
+
+        <h2 style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 700, fontSize: 22, color: C.text, margin: "0 0 16px" }}>
+          A Infinyt não é para toda clínica.
+        </h2>
+        <p style={{ color: C.muted, fontSize: 15, lineHeight: 1.5, margin: "0 0 24px" }}>
+          Hoje trabalhamos com clínicas que já têm volume de atendimento para automatizar. Se a
+          sua está crescendo nessa direção, acompanhe a gente. Quando fizer sentido, a porta está
+          aberta.
+        </p>
+
+        <a
+          href={INSTAGRAM_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: "block",
+            width: "100%",
+            padding: "16px 20px",
+            borderRadius: 999,
+            background: `linear-gradient(90deg, ${C.primaryDark}, ${C.primary}, ${C.primaryLight})`,
+            color: "#FFFFFF",
+            fontFamily: "'Poppins', sans-serif",
+            fontWeight: 600,
+            fontSize: 16,
+            textDecoration: "none",
+            boxShadow: `0 8px 24px ${C.primary}55`,
+          }}
+        >
+          Seguir {INSTAGRAM_HANDLE}
+        </a>
       </div>
     </div>
   );

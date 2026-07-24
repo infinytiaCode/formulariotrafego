@@ -4,6 +4,7 @@ import {
   STEPS,
   WHATSAPP_NUMBER,
   REVENUE_RANGES,
+  DISQUALIFYING_REVENUE,
   COST_PER_CONTACT_INFINYT,
   COST_PER_CONTACT_OTHERS,
   REACTIVATION_CONVERSION_RATE,
@@ -18,6 +19,7 @@ import {
   OptionCard,
   Fade,
   WhatsAppMock,
+  DisqualifyModal,
 } from "./components/UI.jsx";
 
 const parseNumber = (str) => parseInt(String(str).replace(/\D/g, ""), 10) || 0;
@@ -47,6 +49,7 @@ export default function InfinytFunnel() {
   });
   const [leadName, setLeadName] = useState("");
   const [leadPhone, setLeadPhone] = useState("");
+  const [showDisqualified, setShowDisqualified] = useState(false);
 
   const step = STEPS[stepIndex];
   const total = STEPS.length;
@@ -64,6 +67,15 @@ export default function InfinytFunnel() {
   const next = () => {
     const answerKey = STEP_ANSWER_KEYS[step];
     if (answerKey) trackStepAnswer(step, stepIndex, answers[answerKey]);
+
+    // Lead desqualificado (faturamento muito baixo): interrompe o funil aqui.
+    // Nunca chega no passo "final", então o pixel do Meta nunca recebe o
+    // evento de Lead para essa pessoa.
+    if (step === "revenue" && answers.revenue === DISQUALIFYING_REVENUE) {
+      setShowDisqualified(true);
+      return;
+    }
+
     setStepIndex((i) => Math.min(i + 1, STEPS.length - 1));
   };
   const back = () => setStepIndex((i) => Math.max(i - 1, 0));
@@ -663,6 +675,8 @@ export default function InfinytFunnel() {
       >
         © 2026 Infinyt.IA
       </div>
+
+      {showDisqualified && <DisqualifyModal onClose={() => setShowDisqualified(false)} />}
     </div>
   );
 }

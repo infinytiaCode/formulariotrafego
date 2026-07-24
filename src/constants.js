@@ -40,4 +40,11 @@ export const REVENUE_RANGES = [
   "Acima de R$ 200.000",
 ];
 
+// Faixa de faturamento que desqualifica o lead: some o funil aqui, sem
+// avançar para o final e sem disparar Lead no Meta Pixel.
+export const DISQUALIFYING_REVENUE = REVENUE_RANGES[0];
+
 export const WHATSAPP_NUMBER = "557996051013"; // +55 79 9605-1013
+
+export const INSTAGRAM_URL = "https://www.instagram.com/infinyt.ia";
+export const INSTAGRAM_HANDLE = "@infinyt.ia";
