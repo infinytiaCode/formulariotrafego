@@ -1,6 +1,104 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { C, STEPS } from "./constants.js";
 import { fetchEvents } from "./lib/analytics.js";
+
+const DATE_PRESETS = [
+  { key: "today", label: "Hoje" },
+  { key: "yesterday", label: "Ontem" },
+  { key: "7d", label: "7 dias" },
+  { key: "15d", label: "15 dias" },
+  { key: "30d", label: "30 dias" },
+  { key: "custom", label: "Personalizado" },
+];
+
+function startOfDay(d) {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x;
+}
+function endOfDay(d) {
+  const x = new Date(d);
+  x.setHours(23, 59, 59, 999);
+  return x;
+}
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+// Converte o preset selecionado (ou o par de datas do modo personalizado) num
+// intervalo { from, to } em horário local. Retorna null quando ainda não dá
+// pra calcular (personalizado sem as duas datas preenchidas).
+function presetToRange(preset, customFrom, customTo) {
+  const now = new Date();
+  if (preset === "today") return { from: startOfDay(now), to: endOfDay(now) };
+  if (preset === "yesterday") {
+    const y = new Date(now);
+    y.setDate(y.getDate() - 1);
+    return { from: startOfDay(y), to: endOfDay(y) };
+  }
+  if (preset === "7d" || preset === "15d" || preset === "30d") {
+    const days = { "7d": 7, "15d": 15, "30d": 30 }[preset];
+    const from = new Date(now);
+    from.setDate(from.getDate() - (days - 1)); // inclui o dia de hoje na contagem
+    return { from: startOfDay(from), to: endOfDay(now) };
+  }
+  if (preset === "custom") {
+    if (!customFrom || !customTo) return null;
+    return { from: startOfDay(new Date(`${customFrom}T00:00:00`)), to: endOfDay(new Date(`${customTo}T00:00:00`)) };
+  }
+  return null;
+}
+
+function DateRangeFilter({ preset, onPresetChange, customFrom, onCustomFromChange, customTo, onCustomToChange }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        {DATE_PRESETS.map((p) => (
+          <button
+            key={p.key}
+            onClick={() => onPresetChange(p.key)}
+            style={{
+              padding: "8px 14px",
+              borderRadius: 999,
+              border: `1.5px solid ${preset === p.key ? C.primary : C.panelBorder}`,
+              background: preset === p.key ? C.primary : "#fff",
+              color: preset === p.key ? "#fff" : C.text,
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+      {preset === "custom" && (
+        <div style={{ display: "flex", gap: 10, alignItems: "flex-end", flexWrap: "wrap" }}>
+          <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12.5, color: C.muted }}>
+            Início
+            <input
+              type="date"
+              value={customFrom}
+              max={customTo || undefined}
+              onChange={(e) => onCustomFromChange(e.target.value)}
+              style={{ padding: "8px 10px", borderRadius: 8, border: `1px solid ${C.panelBorder}`, fontSize: 13 }}
+            />
+          </label>
+          <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12.5, color: C.muted }}>
+            Fim
+            <input
+              type="date"
+              value={customTo}
+              min={customFrom || undefined}
+              onChange={(e) => onCustomToChange(e.target.value)}
+              style={{ padding: "8px 10px", borderRadius: 8, border: `1px solid ${C.panelBorder}`, fontSize: 13 }}
+            />
+          </label>
+        </div>
+      )}
+    </div>
+  );
+}
 
 const STEP_LABELS = {
   welcome: "Boas-vindas",
@@ -201,16 +299,27 @@ function AnswerBreakdown({ step, answers }) {
 
 export default function Dashboard() {
   const [authed, setAuthed] = useState(() => sessionStorage.getItem(AUTH_KEY) === "1");
-  const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [fetching, setFetching] = useState(false);
   const [events, setEvents] = useState([]);
+
+  const [preset, setPreset] = useState("7d");
+  const [customFrom, setCustomFrom] = useState(todayStr);
+  const [customTo, setCustomTo] = useState(todayStr);
+
+  const range = useMemo(() => presetToRange(preset, customFrom, customTo), [preset, customFrom, customTo]);
 
   useEffect(() => {
     if (!authed) return;
-    fetchEvents().then((data) => {
+    if (preset === "custom" && !range) return; // aguardando as duas datas do modo personalizado
+
+    setFetching(true);
+    fetchEvents(range).then((data) => {
       setEvents(data);
-      setLoading(false);
+      setFetching(false);
+      setInitialLoading(false);
     });
-  }, [authed]);
+  }, [authed, range, preset]);
 
   if (!PASSWORD) {
     return (
@@ -221,7 +330,7 @@ export default function Dashboard() {
   }
 
   if (!authed) return <PasswordGate onSuccess={() => setAuthed(true)} />;
-  if (loading) return <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>Carregando…</div>;
+  if (initialLoading) return <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>Carregando…</div>;
 
   const totalSessions = new Set(events.map((e) => e.session_id)).size;
   const totalVisitors = new Set(events.map((e) => e.visitor_id).filter(Boolean)).size;
@@ -296,7 +405,19 @@ export default function Dashboard() {
   return (
     <div style={{ minHeight: "100vh", background: C.panel, padding: "32px 20px" }}>
       <div style={{ maxWidth: 640, margin: "0 auto", display: "flex", flexDirection: "column", gap: 24 }}>
-        <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: 22, color: C.text, margin: 0 }}>Acessos do funil</h1>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+          <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: 22, color: C.text, margin: 0 }}>Acessos do funil</h1>
+          {fetching && <span style={{ fontSize: 12.5, color: C.muted }}>Atualizando…</span>}
+        </div>
+
+        <DateRangeFilter
+          preset={preset}
+          onPresetChange={setPreset}
+          customFrom={customFrom}
+          onCustomFromChange={setCustomFrom}
+          customTo={customTo}
+          onCustomToChange={setCustomTo}
+        />
 
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
           <StatTile label="Pessoas únicas" value={totalVisitors} />

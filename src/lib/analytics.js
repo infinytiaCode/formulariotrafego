@@ -78,18 +78,24 @@ export function trackStepAnswer(step, stepIndex, answer) {
   });
 }
 
-export async function fetchEvents() {
+// `range` é opcional: { from: Date, to: Date }. Quando presente, filtra os
+// eventos por created_at usando os operadores gte/lte do PostgREST.
+export async function fetchEvents(range) {
   if (!isConfigured) return [];
 
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/analytics_events?select=session_id,visitor_id,event,step,step_index,answer,created_at&order=created_at.asc`,
-    {
-      headers: {
-        apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-      },
-    }
-  );
+  const params = new URLSearchParams({
+    select: "session_id,visitor_id,event,step,step_index,answer,created_at",
+    order: "created_at.asc",
+  });
+  if (range?.from) params.append("created_at", `gte.${range.from.toISOString()}`);
+  if (range?.to) params.append("created_at", `lte.${range.to.toISOString()}`);
+
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/analytics_events?${params.toString()}`, {
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+    },
+  });
 
   if (!res.ok) return [];
   return res.json();
