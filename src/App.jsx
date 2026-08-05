@@ -165,6 +165,11 @@ export default function InfinytFunnel() {
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
         * { box-sizing: border-box; }
         input::placeholder { color: ${C.mutedDark}; }
+        @keyframes pulseGlow {
+          0%, 100% { box-shadow: 0 8px 24px ${C.primary}55; }
+          50% { box-shadow: 0 8px 32px ${C.primary}CC, 0 0 0 6px ${C.primary}22; }
+        }
+        .pulse-btn { animation: pulseGlow 1.6s ease-in-out infinite; }
       `}</style>
 
       <div style={{ width: "100%", maxWidth: 460, minWidth: 0, display: "flex", flexDirection: "column", gap: 22 }}>
@@ -217,19 +222,21 @@ export default function InfinytFunnel() {
               </div>
 
               <h1 style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 700, fontSize: 27, lineHeight: 1.3, color: C.text, margin: 0 }}>
-                Descubra como clínicas e consultórios estão{" "}
-                <span style={{ color: C.primaryLight }}>triplicando o faturamento</span>{" "}
-                com a IA que atende, convence e agenda pacientes no WhatsApp — 24 horas por dia
+                Descubra em <span style={{ color: C.primaryLight }}>1 minuto</span> quanto sua
+                clínica está perdendo por não responder rápido no WhatsApp
               </h1>
 
               <p style={{ color: C.muted, fontSize: 15, lineHeight: 1.5, margin: 0 }}>
-                Responde em segundos, convence com técnica e agenda automaticamente — mesmo fora do horário comercial.
+                Responda 6 perguntas rápidas e veja sua simulação de faturamento personalizada.
               </p>
 
-              <div style={{ width: "100%" }}>
-                <PrimaryButton onClick={next} icon="🔓">
-                  Desbloquear a Infinyt
+              <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 10 }}>
+                <PrimaryButton onClick={next} icon="🚀" pulse>
+                  Começar simulação gratuita
                 </PrimaryButton>
+                <span style={{ color: C.mutedDark, fontSize: 13, textAlign: "center" }}>
+                  Leva menos de 1 minuto
+                </span>
               </div>
             </div>
           )}

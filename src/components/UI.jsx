@@ -45,11 +45,12 @@ export function Logo({ height = 44 }) {
 }
 
 
-export function PrimaryButton({ children, onClick, disabled, icon }) {
+export function PrimaryButton({ children, onClick, disabled, icon, pulse }) {
   return (
     <button
       onClick={onClick}
       disabled={disabled}
+      className={pulse && !disabled ? "pulse-btn" : undefined}
       style={{
         width: "100%",
         padding: "16px 20px",
