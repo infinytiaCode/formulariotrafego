@@ -10,6 +10,7 @@ import {
   REACTIVATION_CONVERSION_RATE,
 } from "./constants.js";
 import { saveLead } from "./lib/supabase.js";
+import { sendCapiEvent } from "./lib/capi.js";
 import { initPixel, trackStep, trackLead, generateEventId, getFbclid, getFbc, getFbp } from "./lib/fbPixel.js";
 import { trackPageView, trackStepView, trackStepAnswer } from "./lib/analytics.js";
 import {
@@ -95,20 +96,30 @@ export default function InfinytFunnel() {
     const eventId = generateEventId();
     trackLead({ revenue_range: answers.revenue }, eventId);
 
-    const { ok } = await saveLead({
-      name: leadName.trim(),
-      phone: leadPhone.trim(),
-      contacts: answers.contacts,
-      who_answers: answers.whoAnswers,
-      lost_client: answers.lostClient,
-      after_hours: answers.afterHours,
-      would_help: answers.wouldHelp,
-      revenue_range: answers.revenue,
-      fbclid: getFbclid(),
-      fbc: getFbc(),
-      fbp: getFbp(),
-      event_id: eventId,
-    });
+    // Mesmo eventId enviado à CAPI (server-side) para o Meta deduplicar com o
+    // evento que o pixel do navegador acabou de disparar acima.
+    const [{ ok }] = await Promise.all([
+      saveLead({
+        name: leadName.trim(),
+        phone: leadPhone.trim(),
+        contacts: answers.contacts,
+        who_answers: answers.whoAnswers,
+        lost_client: answers.lostClient,
+        after_hours: answers.afterHours,
+        would_help: answers.wouldHelp,
+        revenue_range: answers.revenue,
+        fbclid: getFbclid(),
+        fbc: getFbc(),
+        fbp: getFbp(),
+        event_id: eventId,
+      }),
+      sendCapiEvent({
+        eventId,
+        phone: leadPhone.trim(),
+        fbc: getFbc(),
+        fbp: getFbp(),
+      }),
+    ]);
 
     if (!ok) setSubmitError(true);
 

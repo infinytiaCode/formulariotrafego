@@ -68,6 +68,33 @@ VITE_SUPABASE_ANON_KEY=SUA_ANON_KEY_AQUI
 Nunca coloque a chave `service_role` no front-end — apenas a `anon public`,
 que só tem permissão de inserir (graças à policy de RLS acima).
 
+## Conversions API (CAPI) do Meta
+
+Além do Pixel client-side (`src/lib/fbPixel.js`), o evento `Lead` também é
+enviado direto pelo servidor via uma Supabase Edge Function chamada
+**`super-function`** (código em `supabase/functions/super-function`), usando
+o mesmo `event_id` para o Meta deduplicar os dois envios. O access token do
+Meta fica só como secret da function — nunca em uma variável `VITE_*` (essas
+são embutidas no JS público no build).
+
+Deploy da function (uma vez, e sempre que `index.ts` mudar). Pode ser feito
+pelo painel do Supabase (Edge Functions → editar `super-function` → colar o
+código atualizado → Deploy), ou via CLI:
+
+```bash
+# instalar o CLI (uma vez)
+brew install supabase/tap/supabase   # ou: npx supabase <comando>
+
+supabase login
+
+# configurar os secrets (uma vez, ou sempre que o token for rotacionado)
+supabase secrets set META_PIXEL_ID=1050569714171585 --project-ref ezczzgbbfrlrzqsctapc
+supabase secrets set META_ACCESS_TOKEN=SEU_TOKEN_AQUI --project-ref ezczzgbbfrlrzqsctapc
+
+# deploy
+supabase functions deploy super-function --project-ref ezczzgbbfrlrzqsctapc
+```
+
 ## Build de produção
 
 ```bash
