@@ -32,7 +32,8 @@ export const COST_PER_CONTACT_OTHERS = 0.35;
 export const REACTIVATION_CONVERSION_RATE = 0.01;
 
 export const REVENUE_RANGES = [
-  "Até R$ 10.000",
+  "Até R$ 5.000",
+  "R$ 5.000 - R$ 10.000",
   "R$ 10.000 - R$ 30.000",
   "R$ 30.000 - R$ 50.000",
   "R$ 50.000 - R$ 100.000",
