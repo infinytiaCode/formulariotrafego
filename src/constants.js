@@ -31,6 +31,16 @@ export const COST_PER_CONTACT_INFINYT = 0.04;
 export const COST_PER_CONTACT_OTHERS = 0.35;
 export const REACTIVATION_CONVERSION_RATE = 0.01;
 
+// Faixas de contatos/mês (etapa "contacts"). "value" é um número
+// representativo de cada faixa, usado só pela calculadora da etapa
+// seguinte (não é o valor exato que o lead recebe/mês).
+export const CONTACTS_RANGES = [
+  { label: "Menos de 50 contatos", value: 35 },
+  { label: "50 a 100 contatos", value: 75 },
+  { label: "100 a 200 contatos", value: 150 },
+  { label: "Mais de 200 contatos", value: 250 },
+];
+
 export const REVENUE_RANGES = [
   "Até R$ 5.000",
   "R$ 5.000 - R$ 10.000",

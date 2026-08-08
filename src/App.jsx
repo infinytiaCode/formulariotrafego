@@ -3,6 +3,7 @@ import {
   C,
   STEPS,
   WHATSAPP_NUMBER,
+  CONTACTS_RANGES,
   REVENUE_RANGES,
   DISQUALIFYING_REVENUE,
   COST_PER_CONTACT_INFINYT,
@@ -24,6 +25,8 @@ import {
 } from "./components/UI.jsx";
 
 const parseNumber = (str) => parseInt(String(str).replace(/\D/g, ""), 10) || 0;
+const contactsValue = (label) =>
+  CONTACTS_RANGES.find((r) => r.label === label)?.value || 0;
 const formatBRL = (n) =>
   n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
@@ -135,7 +138,7 @@ export default function InfinytFunnel() {
   };
 
   const canContinue = () => {
-    if (step === "contacts") return answers.contacts.trim().length > 0;
+    if (step === "contacts") return !!answers.contacts;
     if (step === "who-answers") return !!answers.whoAnswers;
     if (step === "calculator") return parseNumber(answers.ticketMedio) > 0;
     if (step === "lost-client") return !!answers.lostClient;
@@ -247,41 +250,16 @@ export default function InfinytFunnel() {
               <h2 style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 700, fontSize: 21, color: C.text, textAlign: "center", margin: 0 }}>
                 Quantos <span style={{ color: C.primaryLight }}>contatos</span> você recebe por mês no WhatsApp da sua clínica?
               </h2>
-              <input
-                value={answers.contacts}
-                onChange={(e) => setAnswer("contacts", e.target.value)}
-                placeholder="digite quantos contatos você recebe..."
-                inputMode="numeric"
-                style={{
-                  width: "100%",
-                  padding: "16px 18px",
-                  borderRadius: 14,
-                  border: `1.5px solid ${C.panelBorder}`,
-                  background: "#FFFFFF",
-                  color: C.text,
-                  fontSize: 15,
-                  outline: "none",
-                  boxShadow: "0 1px 3px rgba(23,18,51,0.05)",
-                }}
-              />
-              {parseNumber(answers.contacts) > 0 && parseNumber(answers.contacts) < 100 && (
-                <p
-                  style={{
-                    color: C.danger,
-                    background: "rgba(225,29,94,0.06)",
-                    border: `1px solid ${C.danger}`,
-                    borderRadius: 12,
-                    padding: "12px 14px",
-                    fontSize: 13.5,
-                    lineHeight: 1.5,
-                    margin: 0,
-                  }}
-                >
-                  ⚠️ Confirme: esse número ({parseNumber(answers.contacts)}) é a quantidade de
-                  contatos que você recebe durante <b>todo o mês</b>, e não por dia. Muita gente
-                  preenche sem reparar e coloca a quantidade do dia por engano.
-                </p>
-              )}
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {CONTACTS_RANGES.map((opt) => (
+                  <OptionCard
+                    key={opt.label}
+                    label={opt.label}
+                    selected={answers.contacts === opt.label}
+                    onClick={() => setAnswer("contacts", opt.label)}
+                  />
+                ))}
+              </div>
               <PrimaryButton onClick={next} disabled={!canContinue()}>
                 Continuar
               </PrimaryButton>
@@ -305,7 +283,7 @@ export default function InfinytFunnel() {
           )}
 
           {step === "calculator" && (() => {
-            const contactsNum = parseNumber(answers.contacts);
+            const contactsNum = contactsValue(answers.contacts);
             const costInfinyt = contactsNum * COST_PER_CONTACT_INFINYT;
             const costOthers = contactsNum * COST_PER_CONTACT_OTHERS;
             const economy = costOthers - costInfinyt;
