@@ -190,6 +190,12 @@ function Funnel({ counts }) {
         const color = mixColor(C.primary, C.primaryLight, i / Math.max(counts.length - 1, 1));
         const prev = counts[i - 1];
         const dropPct = prev && prev.count > 0 ? Math.round((1 - c.count / prev.count) * 100) : null;
+        // "Clicou" = quantas dessas sessões chegaram a ver a PRÓXIMA etapa —
+        // é o sinal que temos de que o botão dessa página foi clicado. Não
+        // existe uma próxima etapa depois de "final" (o clique lá é medido
+        // em "Chegaram ao final", já mostrado em outro card).
+        const next = counts[i + 1];
+        const clicked = next ? next.count : null;
         return (
           <div key={c.step}>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: C.text, marginBottom: 4 }}>
@@ -200,6 +206,10 @@ function Funnel({ counts }) {
             </div>
             <div style={{ background: C.panel, borderRadius: 8, height: 18 }}>
               <div style={{ width: `${pct}%`, minWidth: pct > 0 ? 8 : 0, height: "100%", background: color, borderRadius: 8, transition: "width 0.3s" }} />
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5, color: C.mutedDark, marginTop: 3 }}>
+              <span>{c.count} visualizaram</span>
+              <span>{clicked !== null ? `${clicked} clicaram no botão` : "—"}</span>
             </div>
           </div>
         );
