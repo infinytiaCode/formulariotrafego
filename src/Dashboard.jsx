@@ -422,6 +422,7 @@ export default function Dashboard() {
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
           <StatTile label="Pessoas únicas" value={totalVisitors} />
           <StatTile label="Sessões totais" value={totalSessions} />
+          <StatTile label="Só visualizou (não clicou)" value={exitCounts[0]?.count ?? 0} />
           <StatTile label="Chegaram ao final" value={finalCount} />
           <StatTile label="Taxa de conclusão" value={`${conversionRate}%`} />
           <StatTile label="Maior abandono" value={worstDrop.pct > 0 ? `${worstDrop.step} (−${worstDrop.pct}%)` : "-"} />
