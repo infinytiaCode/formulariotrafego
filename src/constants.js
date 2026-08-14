@@ -39,8 +39,9 @@ export const LOST_CLIENT_OPTIONS = [
 ];
 
 export const REVENUE_RANGES = [
-  "Até R$ 20.000",
-  "R$ 20.000 - R$ 50.000",
+  "Até R$ 10.000",
+  "R$ 10.000 - R$ 30.000",
+  "R$ 30.000 - R$ 50.000",
   "R$ 50.000 - R$ 100.000",
   "Acima de R$ 100.000",
 ];
