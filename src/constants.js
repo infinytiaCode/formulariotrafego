@@ -16,39 +16,33 @@ export const C = {
 export const STEPS = [
   "welcome",
   "contacts",
-  "who-answers",
-  "calculator",
   "lost-client",
-  "after-hours",
-  "stat",
-  "would-help",
   "revenue",
   "final",
 ];
 
-// Custo por contato para calcular a calculadora de reativação de base
-export const COST_PER_CONTACT_INFINYT = 0.04;
-export const COST_PER_CONTACT_OTHERS = 0.35;
-export const REACTIVATION_CONVERSION_RATE = 0.01;
-
-// Faixas de contatos/mês (etapa "contacts"). "value" é um número
-// representativo de cada faixa, usado só pela calculadora da etapa
-// seguinte (não é o valor exato que o lead recebe/mês).
+// Faixas de contatos/mês (etapa "contacts").
 export const CONTACTS_RANGES = [
-  { label: "Menos de 50 contatos", value: 35 },
-  { label: "50 a 100 contatos", value: 75 },
-  { label: "100 a 200 contatos", value: 150 },
-  { label: "Mais de 200 contatos", value: 250 },
+  "Menos de 50 contatos",
+  "50 a 100 contatos",
+  "100 a 200 contatos",
+  "Mais de 200 contatos",
+];
+
+// Faixa de "já perdeu cliente por demora" (etapa "lost-client") — escala de
+// frequência, do pior sinal de dor (mais qualificado) ao melhor.
+export const LOST_CLIENT_OPTIONS = [
+  "Sim, com frequência",
+  "Às vezes",
+  "Raramente",
+  "Nunca",
 ];
 
 export const REVENUE_RANGES = [
-  "R$ 5.000 - R$ 10.000",
-  "R$ 10.000 - R$ 20.000",
-  "R$ 20.000 - R$ 30.000",
-  "R$ 30.000 - R$ 50.000",
+  "Até R$ 20.000",
+  "R$ 20.000 - R$ 50.000",
   "R$ 50.000 - R$ 100.000",
-  "R$ 100.000 - R$ 200.000",
-  "Acima de R$ 200.000",
+  "Acima de R$ 100.000",
 ];
 
 // Faixa de faturamento que desqualifica o lead: some o funil aqui, sem
