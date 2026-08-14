@@ -215,7 +215,7 @@ export default function InfinytFunnel() {
                   Quero recuperar esse dinheiro
                 </PrimaryButton>
                 <span style={{ color: C.mutedDark, fontSize: 13, textAlign: "center" }}>
-                  Leva menos de 1 minuto
+                  Clique no botão
                 </span>
               </div>
             </div>
