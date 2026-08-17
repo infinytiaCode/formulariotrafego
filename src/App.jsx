@@ -36,6 +36,7 @@ export default function InfinytFunnel() {
     revenue: "",
   });
   const [leadName, setLeadName] = useState("");
+  const [leadCompany, setLeadCompany] = useState("");
   const [leadPhone, setLeadPhone] = useState("");
   const [showDisqualified, setShowDisqualified] = useState(false);
 
@@ -88,6 +89,7 @@ export default function InfinytFunnel() {
     const [{ ok }] = await Promise.all([
       saveLead({
         name: leadName.trim(),
+        company: leadCompany.trim(),
         phone: leadPhone.trim(),
         contacts: answers.contacts,
         lost_client: answers.lostClient,
@@ -325,6 +327,25 @@ export default function InfinytFunnel() {
                   />
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <label style={{ color: C.text, fontSize: 13.5, fontWeight: 600 }}>Nome da empresa</label>
+                  <input
+                    value={leadCompany}
+                    onChange={(e) => setLeadCompany(e.target.value)}
+                    placeholder="Digite o nome da sua clínica/empresa..."
+                    style={{
+                      width: "100%",
+                      padding: "16px 18px",
+                      borderRadius: 14,
+                      border: `1.5px solid ${C.panelBorder}`,
+                      background: "#FFFFFF",
+                      color: C.text,
+                      fontSize: 15,
+                      outline: "none",
+                      boxShadow: "0 1px 3px rgba(23,18,51,0.05)",
+                    }}
+                  />
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <label style={{ color: C.text, fontSize: 13.5, fontWeight: 600 }}>Celular</label>
                   <input
                     value={leadPhone}
@@ -345,7 +366,7 @@ export default function InfinytFunnel() {
                 </div>
                 <PrimaryButton
                   onClick={handleSubmit}
-                  disabled={!leadName.trim() || !leadPhone.trim() || isSubmitting}
+                  disabled={!leadName.trim() || !leadCompany.trim() || !leadPhone.trim() || isSubmitting}
                   icon="💬"
                 >
                   {isSubmitting ? "Enviando..." : "Falar com a Infinyt no WhatsApp!"}
