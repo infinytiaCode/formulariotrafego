@@ -254,10 +254,6 @@ export default function InfinytFunnel() {
                   ))}
                 </div>
               </div>
-
-              <span style={{ color: C.muted, fontSize: 13 }}>
-                Grátis
-              </span>
             </div>
           )}
 
