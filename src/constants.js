@@ -51,7 +51,9 @@ export const REVENUE_RANGES = [
 // avançar para o final e sem disparar Lead no Meta Pixel.
 export const DISQUALIFYING_REVENUE = REVENUE_RANGES[0];
 
-export const WHATSAPP_NUMBER = "557996051013"; // +55 79 9605-1013
+// Link aberto pelo botão final ("Falar com a Infinyt no WhatsApp!").
+export const WHATSAPP_URL =
+  "https://api.whatsapp.com/send/?phone=5579996051013&text=Ol%C3%A1%2C+gostaria+de+saber+mais+sobre+a+IA+de+atendimento.&type=phone_number&app_absent=0";
 
 export const INSTAGRAM_URL = "https://www.instagram.com/infinyt.ia";
 export const INSTAGRAM_HANDLE = "@infinyt.ia";

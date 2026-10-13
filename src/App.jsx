@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import {
   C,
   STEPS,
-  WHATSAPP_NUMBER,
+  WHATSAPP_URL,
   CONTACTS_RANGES,
   LOST_CLIENT_OPTIONS,
   REVENUE_RANGES,
@@ -119,8 +119,7 @@ export default function InfinytFunnel() {
 
     if (!ok) setSubmitError(true);
 
-    const msg = "Olá quero agendar uma demonstração";
-    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+    const url = WHATSAPP_URL;
 
     // Pequeno atraso para garantir que o beacon do Lead já tenha saído do
     // navegador antes da troca de contexto (nova aba / deep link do app).
