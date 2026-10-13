@@ -132,6 +132,32 @@ export function OptionCard({ label, selected, onClick, tone }) {
 }
 
 
+// Opção compacta (grade 2x2) usada na página inicial.
+export function ChoiceButton({ label, selected, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        width: "100%",
+        padding: "14px 10px",
+        borderRadius: 12,
+        border: `1.5px solid ${selected ? C.primaryLight : C.panelBorder}`,
+        background: selected ? "rgba(124,108,255,0.10)" : "#FFFFFF",
+        boxShadow: selected ? "none" : "0 1px 3px rgba(23,18,51,0.05)",
+        color: C.text,
+        fontFamily: "'Inter', sans-serif",
+        fontSize: 15,
+        fontWeight: 600,
+        cursor: "pointer",
+        transition: "all 150ms ease",
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+
 export function Fade({ children, k }) {
   const [show, setShow] = useState(false);
   useEffect(() => {

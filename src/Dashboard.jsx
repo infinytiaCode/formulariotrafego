@@ -115,7 +115,7 @@ const STEP_LABELS = {
 
 // Passos de texto livre: mostramos média/min/máx e os últimos valores digitados.
 // Os demais passos com resposta têm opções fixas, então mostramos a distribuição.
-const FREE_TEXT_STEPS = new Set(["contacts", "calculator"]);
+const FREE_TEXT_STEPS = new Set(["calculator"]);
 
 function formatDuration(ms) {
   const s = Math.round(ms / 1000);
@@ -349,7 +349,7 @@ export default function Dashboard() {
     step,
     index,
     count: new Set(
-      events.filter((e) => e.event === "step_view" && e.step_index === index).map((e) => e.session_id)
+      events.filter((e) => e.event === "step_view" && e.step === step).map((e) => e.session_id)
     ).size,
   }));
 
@@ -369,10 +369,11 @@ export default function Dashboard() {
   // Onde cada sessão parou de fato: o último passo visto por ela.
   const lastStepBySession = new Map();
   events
-    .filter((e) => e.event === "step_view")
+    .filter((e) => e.event === "step_view" && STEPS.includes(e.step))
     .forEach((e) => {
+      const idx = STEPS.indexOf(e.step);
       const cur = lastStepBySession.get(e.session_id);
-      if (cur === undefined || e.step_index > cur) lastStepBySession.set(e.session_id, e.step_index);
+      if (cur === undefined || idx > cur) lastStepBySession.set(e.session_id, idx);
     });
   const exitCounts = STEPS.map((step, index) => ({
     step,
@@ -385,7 +386,7 @@ export default function Dashboard() {
   const durationsByStep = STEPS.map(() => []);
   const sessionsMap = new Map();
   events
-    .filter((e) => e.event === "step_view")
+    .filter((e) => e.event === "step_view" && STEPS.includes(e.step))
     .forEach((e) => {
       if (!sessionsMap.has(e.session_id)) sessionsMap.set(e.session_id, []);
       sessionsMap.get(e.session_id).push(e);
@@ -394,7 +395,7 @@ export default function Dashboard() {
     const sorted = [...sessionEvents].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
     for (let i = 1; i < sorted.length; i++) {
       const delta = new Date(sorted[i].created_at) - new Date(sorted[i - 1].created_at);
-      if (delta > 0 && delta < 10 * 60 * 1000) durationsByStep[sorted[i - 1].step_index].push(delta);
+      if (delta > 0 && delta < 10 * 60 * 1000) durationsByStep[STEPS.indexOf(sorted[i - 1].step)].push(delta);
     }
   });
   const avgTimeByStep = STEPS.map((step, index) => {

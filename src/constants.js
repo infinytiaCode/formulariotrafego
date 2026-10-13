@@ -13,8 +13,9 @@ export const C = {
   danger: "#E11D5E",
 };
 
+// A primeira página (boas-vindas) já traz a pergunta de contatos, então
+// "contacts" é a etapa inicial.
 export const STEPS = [
-  "welcome",
   "contacts",
   "lost-client",
   "revenue",
@@ -23,10 +24,10 @@ export const STEPS = [
 
 // Faixas de contatos/mês (etapa "contacts").
 export const CONTACTS_RANGES = [
-  "Menos de 50 contatos",
-  "50 a 100 contatos",
-  "100 a 200 contatos",
-  "Mais de 200 contatos",
+  "Até 50",
+  "50 a 150",
+  "150 a 300",
+  "Mais de 300",
 ];
 
 // Faixa de "já perdeu cliente por demora" (etapa "lost-client") — escala de

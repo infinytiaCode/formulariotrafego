@@ -17,6 +17,7 @@ import {
   Logo,
   PrimaryButton,
   OptionCard,
+  ChoiceButton,
   Fade,
   WhatsAppMock,
   DisqualifyModal,
@@ -68,6 +69,15 @@ export default function InfinytFunnel() {
     setStepIndex((i) => Math.min(i + 1, STEPS.length - 1));
   };
   const back = () => setStepIndex((i) => Math.max(i - 1, 0));
+
+  // Na página inicial, escolher uma opção já responde e avança (sem botão
+  // "Continuar"). Registra a resposta aqui porque o estado ainda não
+  // atualizou quando o next() rodaria.
+  const pickContactsAndAdvance = (opt) => {
+    setAnswer("contacts", opt);
+    trackStepAnswer(step, stepIndex, opt);
+    setTimeout(() => setStepIndex(1), 180);
+  };
   const setAnswer = (key, val) => setAnswers((a) => ({ ...a, [key]: val }));
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -157,7 +167,7 @@ export default function InfinytFunnel() {
       <div style={{ width: "100%", maxWidth: 460, minWidth: 0, display: "flex", flexDirection: "column", gap: 22 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 14, alignItems: "center" }}>
           <Logo />
-          {step !== "welcome" && <ProgressBar index={stepIndex} total={total} />}
+          {step !== "contacts" && <ProgressBar index={stepIndex} total={total} />}
         </div>
 
         {stepIndex > 0 && (
@@ -183,8 +193,8 @@ export default function InfinytFunnel() {
         )}
 
         <Fade k={step}>
-          {step === "welcome" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 22, alignItems: "center", textAlign: "center" }}>
+          {step === "contacts" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 18, alignItems: "center", textAlign: "center" }}>
               <div
                 style={{
                   background: C.panel,
@@ -209,39 +219,45 @@ export default function InfinytFunnel() {
               </h1>
 
               <p style={{ color: C.muted, fontSize: 15, lineHeight: 1.5, margin: 0 }}>
-                A conta é simples e dói.
+                Responda 4 perguntas rápidas e veja quanto está perdendo.
               </p>
 
-              <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 10 }}>
-                <PrimaryButton onClick={next} icon="🔥" pulse>
-                  Quero recuperar esse dinheiro
-                </PrimaryButton>
-                <span style={{ color: C.mutedDark, fontSize: 13, textAlign: "center" }}>
-                  Clique no botão
-                </span>
+              <div
+                style={{
+                  width: "100%",
+                  background: C.panel,
+                  border: `1px solid ${C.panelBorder}`,
+                  borderRadius: 18,
+                  padding: "18px 16px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 14,
+                  textAlign: "left",
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, color: C.muted }}>
+                  <span style={{ fontWeight: 600, color: C.text }}>Pergunta 1 de {total}</span>
+                  <span>leva 30 segundos</span>
+                </div>
+                <ProgressBar index={0} total={total} />
+                <h2 style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 700, fontSize: 19, lineHeight: 1.3, color: C.text, margin: "4px 0 0" }}>
+                  Quantos contatos sua clínica recebe por mês no WhatsApp?
+                </h2>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  {CONTACTS_RANGES.map((opt) => (
+                    <ChoiceButton
+                      key={opt}
+                      label={opt}
+                      selected={answers.contacts === opt}
+                      onClick={() => pickContactsAndAdvance(opt)}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
 
-          {step === "contacts" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-              <WhatsAppMock variant="normal" />
-              <h2 style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 700, fontSize: 21, color: C.text, textAlign: "center", margin: 0 }}>
-                Quantos <span style={{ color: C.primaryLight }}>contatos</span> você recebe por mês no WhatsApp da sua clínica?
-              </h2>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {CONTACTS_RANGES.map((opt) => (
-                  <OptionCard
-                    key={opt}
-                    label={opt}
-                    selected={answers.contacts === opt}
-                    onClick={() => setAnswer("contacts", opt)}
-                  />
-                ))}
-              </div>
-              <PrimaryButton onClick={next} disabled={!canContinue()}>
-                Continuar
-              </PrimaryButton>
+              <span style={{ color: C.muted, fontSize: 13 }}>
+                Grátis · sem cadastro até o final
+              </span>
             </div>
           )}
 
@@ -392,8 +408,16 @@ export default function InfinytFunnel() {
           color: C.mutedDark,
           fontSize: 12,
           padding: "20px 0 4px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
         }}
       >
+        {step === "contacts" && (
+          <span style={{ color: C.muted, fontSize: 12.5 }}>
+            Usado por diversas clínicas pelo Brasil
+          </span>
+        )}
         © 2026 Infinyt.IA
       </div>
 
